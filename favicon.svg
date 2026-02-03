@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <linearGradient id="bodyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#b0b0b0" stop-opacity="0.85"/>
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e04848"/>
+      <stop offset="100%" stop-color="#c03030"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Main body — rounded rectangle, sharp modern shape -->
+  <rect x="12" y="34" width="104" height="60" rx="18" ry="18" fill="url(#bodyGrad)"/>
+
+  <!-- Left grip -->
+  <rect x="8" y="52" width="28" height="38" rx="14" ry="14" fill="url(#bodyGrad)"/>
+
+  <!-- Right grip -->
+  <rect x="92" y="52" width="28" height="38" rx="14" ry="14" fill="url(#bodyGrad)"/>
+
+  <!-- D-Pad — cross shape, left side -->
+  <!-- Horizontal bar -->
+  <rect x="24" y="52" width="24" height="8" rx="2" fill="#1a1a1a"/>
+  <!-- Vertical bar -->
+  <rect x="33" y="43" width="8" height="24" rx="2" fill="#1a1a1a"/>
+
+  <!-- Right buttons — 3 circles stacked diagonally -->
+  <circle cx="82" cy="48" r="5.5" fill="#1a1a1a"/>
+  <circle cx="91" cy="55" r="5.5" fill="url(#accentGrad)"/>
+  <circle cx="82" cy="62" r="5.5" fill="#1a1a1a"/>
+  <circle cx="73" cy="55" r="5.5" fill="#1a1a1a"/>
+
+  <!-- Center details — two small pills (start / select) -->
+  <rect x="50" y="58" width="12" height="5" rx="2.5" fill="#1a1a1a"/>
+  <rect x="66" y="58" width="12" height="5" rx="2.5" fill="#1a1a1a"/>
+
+  <!-- Top center bump (menu nub) — red accent -->
+  <rect x="58" y="32" width="12" height="6" rx="3" fill="url(#accentGrad)"/>
+</svg>

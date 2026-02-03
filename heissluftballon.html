@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Heißluftballon</title>
+    <link rel="icon" href="favicon.svg">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Space+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+
+    <style>
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-deep: #0e0e0e;
+            --bg-card: #1a1a1a;
+            --bg-hover: #242424;
+            --border: #2a2a2a;
+            --text-dim: #555;
+            --text-mid: #999;
+            --text-main: #e2e2e2;
+            --text-white: #f5f5f5;
+            --accent: #e04848;
+        }
+
+        html,
+        body {
+            background: var(--bg-deep);
+            min-height: 100vh;
+            color: var(--text-main);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            padding: 0;
+        }
+
+        /* grain overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        /* ─── GAME PAGE HEADER ─── */
+        .game-header {
+            width: 100%;
+            max-width: 860px;
+            padding: 40px 24px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .game-header .label-top {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.68rem;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            margin-bottom: 8px;
+        }
+
+        .game-header h1 {
+            font-family: 'Space Mono', monospace;
+            font-size: clamp(1.8rem, 5vw, 2.8rem);
+            font-weight: 700;
+            color: var(--text-white);
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+        }
+
+        .game-header h1 .dot {
+            color: var(--accent);
+        }
+
+        .game-header .header-rule {
+            width: 100%;
+            height: 1px;
+            background: var(--border);
+            margin: 16px 0 0;
+        }
+
+        /* ─── STATS BAR ─── */
+        .stats-bar {
+            width: 100%;
+            max-width: 860px;
+            display: flex;
+            gap: 1px;
+            background: var(--border);
+            margin-top: 16px;
+        }
+
+        .stat-block {
+            flex: 1;
+            background: var(--bg-card);
+            padding: 14px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .stat-block .stat-label {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.6rem;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--text-dim);
+        }
+
+        .stat-block .stat-value {
+            font-family: 'Space Mono', monospace;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-white);
+        }
+
+        /* ─── CANVAS WRAPPER ─── */
+        .canvas-wrap {
+            width: 100%;
+            max-width: 860px;
+            margin-top: 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .canvas-wrap canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* ─── MESSAGE / HINT ─── */
+        .msg-bar {
+            width: 100%;
+            max-width: 860px;
+            margin-top: 1px;
+            background: var(--bg-card);
+            border-top: 1px solid var(--border);
+            padding: 12px 20px;
+            font-size: 0.82rem;
+            color: var(--text-mid);
+            font-family: 'Inter', sans-serif;
+            min-height: 42px;
+            display: flex;
+            align-items: center;
+        }
+
+        /* ─── CONTROLS ROW ─── */
+        .ctrl-row {
+            width: 100%;
+            max-width: 860px;
+            display: flex;
+            gap: 1px;
+            background: var(--border);
+            margin-top: 16px;
+        }
+
+        .ctrl-btn {
+            flex: 1;
+            background: var(--bg-card);
+            border: none;
+            color: var(--text-main);
+            font-family: 'Space Mono', monospace;
+            font-size: 0.78rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 14px 10px;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .ctrl-btn:hover {
+            background: var(--bg-hover);
+            color: var(--text-white);
+        }
+
+        .ctrl-btn.primary {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .ctrl-btn.primary:hover {
+            background: #c93a3a;
+            color: #fff;
+        }
+
+        /* ─── BACK LINK ─── */
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin: 28px 0 40px;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.68rem;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: var(--accent);
+        }
+
+        .back-link svg {
+            width: 14px;
+            height: 14px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        /* ─── OVERLAY (start / game-over screens) ─── */
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(10, 10, 10, 0.92);
+            z-index: 50;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            padding: 40px 24px;
+        }
+
+        .overlay .overlay-label {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.65rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--text-dim);
+        }
+
+        .overlay h2 {
+            font-family: 'Space Mono', monospace;
+            font-size: clamp(2rem, 6vw, 3.2rem);
+            font-weight: 700;
+            color: var(--text-white);
+            letter-spacing: -0.02em;
+            text-align: center;
+            line-height: 1.1;
+        }
+
+        .overlay h2 .dot {
+            color: var(--accent);
+        }
+
+        .overlay .overlay-rule {
+            width: 60px;
+            height: 1px;
+            background: var(--border);
+        }
+
+        .overlay p {
+            font-size: 0.9rem;
+            color: var(--text-mid);
+            text-align: center;
+            max-width: 420px;
+            line-height: 1.6;
+        }
+
+        .overlay .overlay-scores {
+            display: flex;
+            gap: 32px;
+        }
+
+        .overlay .ov-score {
+            text-align: center;
+        }
+
+        .overlay .ov-score .ov-label {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.6rem;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            margin-bottom: 4px;
+        }
+
+        .overlay .ov-score .ov-val {
+            font-family: 'Space Mono', monospace;
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--text-white);
+        }
+
+        .overlay .ov-btn {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.72rem;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            padding: 13px 32px;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 8px;
+        }
+
+        .overlay .ov-btn:hover {
+            background: #c93a3a;
+        }
+
+        /* ─── DIFFICULTY PILLS (breakout) ─── */
+        .diff-row {
+            display: flex;
+            gap: 1px;
+            background: var(--border);
+            margin-top: 12px;
+        }
+
+        .diff-pill {
+            background: var(--bg-card);
+            border: none;
+            color: var(--text-mid);
+            font-family: 'Space Mono', monospace;
+            font-size: 0.68rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 10px 18px;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .diff-pill:hover {
+            background: var(--bg-hover);
+            color: var(--text-main);
+        }
+
+        .diff-pill.active {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        /* ─── MOBILE D-PAD (snake) ─── */
+        .dpad {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            margin-top: 16px;
+        }
+
+        .dpad-row {
+            display: flex;
+            gap: 2px;
+        }
+
+        .dpad-btn {
+            width: 56px;
+            height: 56px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.15s;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        .dpad-btn:active {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        @media (max-width: 600px) {
+            .dpad {
+                display: flex;
+            }
+
+            .game-header {
+                padding-top: 24px;
+            }
+        }
+
+        /* ─── RESPONSIVE canvas height ─── */
+        .canvas-wrap {
+            min-height: 280px;
+        }
+
+        @media (min-width: 601px) {
+            .canvas-wrap {
+                min-height: 420px;
+            }
+        }
+
+        /* new-highscore flash */
+        #newHighscoreAlert {
+            position: fixed;
+            top: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--accent);
+            color: #fff;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.72rem;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            padding: 10px 24px;
+            z-index: 200;
+            display: none;
+        }
+
+        #gameOver {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 48px;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            display: none;
+            background: rgba(0, 0, 0, 0.95);
+            padding: 20px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 600px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="game-header">
+        <h1>HEISSLUFTBALLON</h1>
+        <div class="header-rule"></div>
+    </div>
+
+    <div class="stats-bar">
+        <div class="stat-block">
+            <span class="stat-label">Punkte</span>
+            <span class="stat-value" id="score">0</span>
+        </div>
+        <div class="stat-block">
+            <span class="stat-label">Highscore</span>
+            <span class="stat-value" id="highScore">0</span>
+        </div>
+    </div>
+
+    <div class="canvas-wrap">
+        <canvas id="gameCanvas"></canvas>
+    </div>
+
+    <div class="msg-bar" id="message"></div>
+
+    <div class="ctrl-row">
+        <button class="ctrl-btn primary" onclick="startGame()">Neues Spiel</button>
+    </div>
+
+
+    <a href="index.html" class="back-link">
+        <svg viewBox="0 0 24 24">
+            <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+        Zurück zur Startseite
+    </a>
+
+    <div class="overlay" id="gameOver">
+        <p class="overlay-label">Ende</p>
+        <h2>GAME OVER</h2>
+        <div class="overlay-rule"></div>
+        <div class="overlay-scores">
+            <div class="ov-score">
+                <div class="ov-label">Punkte</div>
+                <div class="ov-val" id="finalScore">0</div>
+            </div>
+        </div>
+        <button class="ov-btn" onclick="window.location.reload()">Nochmal</button>
+    </div>
+
+    <script>
+        // Setze die initiale Nachricht basierend auf dem Gerät
+        window.onload = function () {
+            const message = document.getElementById('message');
+            message.textContent = "Tippe auf 'Neues Spiel' zum Starten";
+        };
+
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const message = document.getElementById('message');
+        const scoreElement = document.getElementById('score');
+        const highScoreElement = document.getElementById('highScore');
+
+        // Spielvariablen
+        let score = 0;
+        let highScore = localStorage.getItem('highScore_heissluftballon') || 0;
+        let gameActive = false;
+        let animationFrame;
+        let touchX = 0;
+        let isTouching = false;
+        let mouseX = 0;
+        let isMouseDown = false;
+        let gameSpeed = 100;
+        let direction = 'right';
+        let nextDirection = 'right';
+
+        let oncestarted = false
+
+        // Ballon
+        const balloon = {
+            x: canvas.width / 2,
+            y: canvas.height - 100,
+            width: 50,
+            height: 60,
+            speed: 5,
+            // Hitbox-Punkte für den Ballon
+            hitbox: {
+                top: { x: 0, y: -30 },
+                right: { x: 25, y: 0 },
+                bottom: { x: 0, y: 30 },
+                left: { x: -25, y: 0 }
+            }
+        };
+
+        // Hindernisse
+        let obstacles = [];
+        const obstacleWidth = 30;
+        const obstacleHeight = 30;
+        const obstacleSpeed = 3;
+
+        // Wolken
+        let clouds = [];
+        const cloudCount = 5;
+
+        // Initialisiere Wolken
+        function initClouds() {
+            clouds = [];
+            for (let i = 0; i < cloudCount; i++) {
+                clouds.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    width: 60 + Math.random() * 40,
+                    height: 30 + Math.random() * 20,
+                    speed: 1 + Math.random() * 2
+                });
+            }
+        }
+
+        function drawBalloon() {
+            // Ballonkorb
+            ctx.fillStyle = '#8B4513';
+            ctx.fillRect(balloon.x - 10, balloon.y + 40, 20, 20);
+
+            // Ballon
+            ctx.beginPath();
+            ctx.ellipse(balloon.x, balloon.y, balloon.width / 2, balloon.height / 2, 0, 0, Math.PI * 2);
+            ctx.fillStyle = '#FF0000';
+            ctx.fill();
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Verbindungslinien
+            ctx.beginPath();
+            ctx.moveTo(balloon.x - 10, balloon.y + 40);
+            ctx.lineTo(balloon.x - 15, balloon.y + 20);
+            ctx.moveTo(balloon.x + 10, balloon.y + 40);
+            ctx.lineTo(balloon.x + 15, balloon.y + 20);
+            ctx.stroke();
+
+            // Hitbox-Debug (nur für Entwicklung)
+            if (false) { // Auf true setzen um Hitbox zu sehen
+                ctx.strokeStyle = 'rgba(255,0,0,0.5)';
+                ctx.beginPath();
+                ctx.moveTo(balloon.x + balloon.hitbox.top.x, balloon.y + balloon.hitbox.top.y);
+                ctx.lineTo(balloon.x + balloon.hitbox.right.x, balloon.y + balloon.hitbox.right.y);
+                ctx.lineTo(balloon.x + balloon.hitbox.bottom.x, balloon.y + balloon.hitbox.bottom.y);
+                ctx.lineTo(balloon.x + balloon.hitbox.left.x, balloon.y + balloon.hitbox.left.y);
+                ctx.closePath();
+                ctx.stroke();
+            }
+        }
+
+        function drawObstacles() {
+            ctx.fillStyle = 'red';
+            obstacles.forEach(obstacle => {
+                ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+            });
+        }
+
+        function drawClouds() {
+            ctx.fillStyle = 'gray';
+            clouds.forEach(cloud => {
+                ctx.beginPath();
+                ctx.ellipse(cloud.x, cloud.y, cloud.width / 2, cloud.height / 2, 0, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+
+        function updateClouds() {
+            clouds.forEach(cloud => {
+                cloud.y += cloud.speed;
+                if (cloud.y > canvas.height) {
+                    cloud.y = -cloud.height;
+                    cloud.x = Math.random() * canvas.width;
+                }
+            });
+        }
+
+        function createObstacle() {
+            if (Math.random() < 0.02) {
+                obstacles.push({
+                    x: Math.random() * (canvas.width - obstacleWidth),
+                    y: -obstacleHeight,
+                    width: obstacleWidth,
+                    height: obstacleHeight
+                });
+            }
+        }
+
+        function updateObstacles() {
+            obstacles = obstacles.filter(obstacle => {
+                obstacle.y += obstacleSpeed;
+                return obstacle.y < canvas.height;
+            });
+        }
+
+        function checkCollision() {
+            return obstacles.some(obstacle => {
+                // Berechne die Eckpunkte des Hindernisses
+                const obstacleLeft = obstacle.x;
+                const obstacleRight = obstacle.x + obstacle.width;
+                const obstacleTop = obstacle.y;
+                const obstacleBottom = obstacle.y + obstacle.height;
+
+                // Berechne die Eckpunkte der Ballon-Hitbox
+                const balloonLeft = balloon.x + balloon.hitbox.left.x;
+                const balloonRight = balloon.x + balloon.hitbox.right.x;
+                const balloonTop = balloon.y + balloon.hitbox.top.y;
+                const balloonBottom = balloon.y + balloon.hitbox.bottom.y;
+
+                // Prüfe Kollision zwischen Rechteck (Hindernis) und Raute (Ballon)
+                return (
+                    // Prüfe ob eine Ecke des Hindernisses innerhalb der Ballon-Hitbox liegt
+                    (obstacleLeft <= balloonRight && obstacleRight >= balloonLeft &&
+                        obstacleTop <= balloonBottom && obstacleBottom >= balloonTop) ||
+                    // Prüfe ob eine Ecke der Ballon-Hitbox innerhalb des Hindernisses liegt
+                    (balloonLeft <= obstacleRight && balloonRight >= obstacleLeft &&
+                        balloonTop <= obstacleBottom && balloonBottom >= obstacleTop)
+                );
+            });
+        }
+
+        function updateScore() {
+            score++;
+            scoreElement.textContent = score;
+        }
+
+        function updateBalloonPosition() {
+            if (isTouching) {
+                balloon.x = touchX;
+            } else if (isMouseDown) {
+                balloon.x = mouseX;
+            }
+        }
+
+        function gameLoop() {
+            if (!gameActive) return;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Zeichne und aktualisiere Wolken
+            drawClouds();
+            updateClouds();
+
+            // Zeichne und aktualisiere Hindernisse
+            drawObstacles();
+            updateObstacles();
+            createObstacle();
+
+            // Aktualisiere und zeichne Ballon
+            updateBalloonPosition();
+            drawBalloon();
+
+            // Kollisionserkennung
+            if (checkCollision()) {
+                endGame();
+                return;
+            }
+
+            // Score aktualisieren
+            updateScore();
+
+            animationFrame = requestAnimationFrame(gameLoop);
+        }
+
+        function startGame() {
+            if (gameActive) return;
+            if (oncestarted) return;
+
+            oncestarted = true
+            score = 0;
+            scoreElement.textContent = score;
+            obstacles = [];
+            balloon.x = canvas.width / 2;
+            gameActive = true;
+            message.textContent = isMobileDevice() ? "Berühre den Bildschirm zum Steuern" : "Benutze die Maus zum Steuern";
+            message.className = "message start";
+            initClouds();
+            gameLoop();
+            document.querySelectorAll('[onclick="startGame()"]').forEach(obj => {
+                obj.style.display = "none";
+            });
+        }
+
+        function endGame() {
+            gameActive = false;
+            cancelAnimationFrame(animationFrame);
+            document.getElementById("finalScore").innerText = score
+            document.getElementById("gameOver").style.display = "flex"
+
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('highScore_heissluftballon', highScore);
+                highScoreElement.textContent = highScore;
+            }
+        }
+
+        // Touch-Steuerung
+        function handleTouchStart(e) {
+            e.preventDefault();
+            isTouching = true;
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const canvasX = (e.touches[0].clientX - rect.left) * scaleX;
+            touchX = canvasX;
+        }
+
+        function handleTouchMove(e) {
+            e.preventDefault();
+            if (!gameActive) return;
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const canvasX = (e.touches[0].clientX - rect.left) * scaleX;
+            touchX = Math.max(balloon.width / 2, Math.min(canvas.width - balloon.width / 2, canvasX));
+        }
+
+        function handleTouchEnd(e) {
+            e.preventDefault();
+            isTouching = false;
+        }
+
+        // Maus-Steuerung
+        function handleMouseDown(e) {
+            if (!gameActive) return;
+            isMouseDown = true;
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const canvasX = (e.clientX - rect.left) * scaleX;
+            mouseX = Math.max(balloon.width / 2, Math.min(canvas.width - balloon.width / 2, canvasX));
+        }
+
+        function handleMouseMove(e) {
+            if (!gameActive || !isMouseDown) return;
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const canvasX = (e.clientX - rect.left) * scaleX;
+            mouseX = Math.max(balloon.width / 2, Math.min(canvas.width - balloon.width / 2, canvasX));
+        }
+
+        function handleMouseUp() {
+            isMouseDown = false;
+        }
+
+        // Event-Listener für Touch-Steuerung
+        canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
+        canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+        canvas.addEventListener('touchend', handleTouchEnd, { passive: false });
+        canvas.addEventListener('touchcancel', handleTouchEnd, { passive: false });
+
+        // Event-Listener für Maus-Steuerung
+        canvas.addEventListener('mousedown', handleMouseDown);
+        canvas.addEventListener('mousemove', handleMouseMove);
+        canvas.addEventListener('mouseup', handleMouseUp);
+        canvas.addEventListener('mouseleave', handleMouseUp);
+
+        let jumpedonce = false
+
+        // Tastatur-Steuerung
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault(); // Verhindert das Standardverhalten der Leertaste
+                startGame();
+            }
+        });
+
+        // Initialisiere Highscore
+        highScoreElement.textContent = highScore;
+
+        function resizeCanvas() {
+            const wrapper = canvas.parentElement;
+            const container = wrapper.parentElement;
+            const availableHeight = window.innerHeight - container.offsetTop - 150; // 150px für Header, Stats, Message und Controls
+            const availableWidth = container.clientWidth;
+
+            // Berechne die optimale Größe basierend auf dem verfügbaren Platz
+            const aspectRatio = 2 / 3;
+            let newWidth = availableWidth;
+            let newHeight = newWidth * aspectRatio;
+
+            if (newHeight > availableHeight) {
+                newHeight = availableHeight;
+                newWidth = newHeight / aspectRatio;
+            }
+
+            canvas.width = newWidth;
+            canvas.height = 500;
+
+            // Aktualisiere die Ballon-Position
+            balloon.x = canvas.width / 2;
+            balloon.y = canvas.height - 100;
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        window.addEventListener('orientationchange', resizeCanvas);
+        resizeCanvas();
+
+        function isMobileDevice() {
+            return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        }
+    </script>
+</body>
+
+</html>

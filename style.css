@@ -1,0 +1,308 @@
+:root {
+    --primary-color: #6c5ce7;
+    --secondary-color: #a29bfe;
+    --accent-color: #00cec9;
+    --background-color: #f8f9fa;
+    --text-color: #2d3436;
+    --success-color: #00b894;
+    --error-color: #d63031;
+    --warning-color: #fdcb6e;
+}
+
+/* Allgemeine Stile */
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    text-align: center;
+    background: linear-gradient(135deg, var(--background-color), #e0e0e0);
+    min-height: 100vh;
+    color: var(--text-color);
+}
+
+h1 {
+    color: var(--primary-color);
+    margin-bottom: 40px;
+    font-size: 2.5em;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+    animation: fadeIn 1s ease-in;
+}
+
+/* Container Stile */
+.game-container {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    margin: 20px auto;
+    max-width: 600px;
+    animation: slideUp 0.5s ease-out;
+}
+
+/* Button Stile */
+button {
+    padding: 12px 24px;
+    margin: 10px;
+    cursor: pointer;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.1em;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+button:hover {
+    background: var(--secondary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+/* Statistik Stile */
+.stats {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 15px;
+    border-radius: 10px;
+    margin: 20px 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.stats p {
+    margin: 10px 0;
+    font-size: 1.1em;
+}
+
+/* Nachrichten Stile */
+.message {
+    padding: 15px;
+    border-radius: 10px;
+    margin: 20px 0;
+    font-size: 1.1em;
+    font-weight: 500;
+    animation: fadeIn 0.3s ease-in;
+}
+
+.message.success {
+    background-color: var(--success-color);
+    color: white;
+}
+
+.message.error {
+    background-color: var(--error-color);
+    color: white;
+}
+
+.message.warning {
+    background-color: var(--warning-color);
+    color: var(--text-color);
+}
+
+/* Zurück-Link Stil */
+.back-link {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 10px 20px;
+    background: white;
+    color: var(--primary-color);
+    text-decoration: none;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.back-link:hover {
+    background: var(--primary-color);
+    color: white;
+    transform: translateY(-2px);
+}
+
+/* Animationen */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+    
+    .game-container {
+        padding: 20px;
+        margin: 10px;
+    }
+    
+    h1 {
+        font-size: 2em;
+    }
+    
+    button {
+        padding: 10px 20px;
+        font-size: 1em;
+    }
+}
+
+.highscore-dialog {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.highscore-content {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.highscore-content input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.highscore-content button {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    margin: 5px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.highscore-content button:hover {
+    background: var(--secondary-color);
+}
+
+.highscore-content table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+}
+
+.highscore-content th,
+.highscore-content td {
+    padding: 8px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.highscore-content th {
+    background: var(--primary-color);
+    color: white;
+}
+
+.highscore-content tr:nth-child(even) {
+    background: #f2f2f2;
+}
+
+.controls {
+    margin-top: 20px;
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    align-items: center;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.controls input {
+    padding: 10px 15px;
+    border: 2px solid var(--primary-color);
+    border-radius: 8px;
+    width: 200px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.9);
+}
+
+.controls input:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 5px rgba(108, 92, 231, 0.3);
+}
+
+.controls button {
+    padding: 10px 20px;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 16px;
+    font-weight: 500;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.controls button:hover {
+    background: var(--secondary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.controls button:active {
+    transform: translateY(0);
+}
+
+.highscore-message {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--primary-color);
+    color: white;
+    padding: 15px 25px;
+    border-radius: 10px;
+    font-size: 18px;
+    font-weight: 500;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    animation: slideDown 0.5s ease-out;
+    display: none;
+}
+
+@keyframes slideDown {
+    from {
+        transform: translate(-50%, -20px);
+        opacity: 0;
+    }
+    to {
+        transform: translate(-50%, 0);
+        opacity: 1;
+    }
+} 
