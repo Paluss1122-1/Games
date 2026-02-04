@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Gravity Flip</title>
+    <link rel="icon" href="favicon.svg">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Space+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="portrait-warning">
+        <div class="warning-icon">📱➡️</div>
+        <h2>QUERFORMAT EMPFOHLEN</h2>
+        <p>Bitte drehe dein Gerät ins Querformat für das beste Spielerlebnis.</p>
+    </div>
+    <div class="game-header">
+        <h1>GRAVITY FLIP</h1>
+        <div class="header-rule"></div>
+    </div>
+
+    <div class="stats-bar" id="statsbar">
+        <div class="stat-block">
+            <span class="stat-label">Punkte</span>
+            <span class="stat-value" id="score">0</span>
+        </div>
+        <div class="stat-block">
+            <span class="stat-label">Highscore</span>
+            <span class="stat-value" id="highScore">0</span>
+        </div>
+    </div>
+
+    <div class="canvas-wrap" id="canvaswrap">
+        <canvas id="gameCanvas"></canvas>
+    </div>
+
+    <div class="overlay" id="startScreen">
+        <p class="overlay-label">Dinosaurier</p>
+        <h2>BEREIT</h2>
+        <div class="overlay-rule"></div>
+        <p id="desktopInstructions" style="display:none;">Steuerung: Pfeiltasten links / rechts<br>Ziel: Zerstöre alle
+            Blöcke!</p>
+        <p id="mobileInstructions" style="display:none;">Steuerung: Berühre und ziehe das Paddle<br>Ziel: Zerstöre alle
+            Blöcke!</p>
+        <div class="overlay-scores">
+            <div class="ov-score">
+                <div class="ov-label">Highscore</div>
+                <div class="ov-val" id="final-Score">0</div>
+            </div>
+        </div>
+        <div class="overlay-rule"></div>
+        <button class="ov-btn" id="startButton"
+            onclick="startGame(); this.parentElement.style.display = 'none'">Starten</button>
+    </div>
+
+    <div class="msg-bar" id="message">Drücke Leertaste zum Starten</div>
+
+
+    <a href="index.html" class="back-link">
+        <svg viewBox="0 0 24 24">
+            <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+        Zurück zur Startseite
+    </a>
+
+    <div class="overlay" id="gameOver">
+        <p class="overlay-label">Ende</p>
+        <h2>GAME OVER</h2>
+        <div class="overlay-rule"></div>
+        <div class="overlay-scores">
+            <div class="ov-score">
+                <div class="ov-label">Punkte</div>
+                <div class="ov-val" id="finalScore">0</div>
+            </div>
+        </div>
+        <button class="ov-btn" onclick="window.location.reload()">Nochmal</button>
+    </div>
+
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const message = document.getElementById('message');
+        const scoreElement = document.getElementById('score');
+        const highScoreElement = document.getElementById('highScore');
+
+        let score = 0;
+        let highScore = localStorage.getItem('highScore_gravity_flip') || 0;
+        document.getElementById("final-Score").textContent = highScore
+        highScoreElement.textContent = highScore
+        let gameActive = false;
+        let animationFrame;
+        let gameSpeed = 2;
+        let baseGravity = 0.3;
+        let gravity = 0.3;
+        let gravityDirection = -1;
+        let oncestarted = false
+        let spacepressed = false
+
+        const player = {
+            x: 50,
+            y: canvas.height / 2,
+            width: 30,
+            height: 30,
+            velocity: 0,
+            color: '#6c5ce7'
+        };
+
+        // Hindernisse
+        let obstacles = [];
+        const obstacleWidth = 15;
+        const minObstacleDistance = 300; // Mindestabstand zwischen Hindernissen
+
+        function drawPlayer() {
+            ctx.fillStyle = player.color;
+            ctx.fillRect(player.x, player.y - player.height / 2, player.width, player.height);
+        }
+
+        function createObstacle() {
+            if (Math.random() < 0.01) { // Reduziert von 0.015 auf 0.01
+                // Prüfe, ob der letzte Kaktus weit genug entfernt ist
+                if (obstacles.length === 0 ||
+                    (canvas.width - obstacles[obstacles.length - 1].x) > minObstacleDistance) {
+                    const isTop = Math.random() < 0.5;
+                    const height = Math.random() * (canvas.height - 200) + 50;
+
+                    obstacles.push({
+                        x: canvas.width,
+                        isTop: isTop,
+                        height: height,
+                        width: obstacleWidth
+                    });
+                }
+            }
+        }
+
+        function drawObstacles() {
+            ctx.fillStyle = '#535353';
+            obstacles.forEach(obstacle => {
+                if (obstacle.isTop) {
+                    // Oberes Hindernis
+                    ctx.fillRect(obstacle.x, 0, obstacle.width, obstacle.height);
+                } else {
+                    // Unteres Hindernis
+                    ctx.fillRect(obstacle.x, canvas.height - obstacle.height, obstacle.width, obstacle.height);
+                }
+            });
+        }
+
+        function updatePlayer() {
+            player.velocity += gravity * gravityDirection;
+            player.y += player.velocity;
+
+            // Begrenze den Spieler auf den Bildschirm
+            if (player.y - player.height / 2 < 0) {
+                player.y = player.height / 2;
+                player.velocity = 0;
+            } else if (player.y + player.height / 2 > canvas.height) {
+                player.y = canvas.height - player.height / 2;
+                player.velocity = 0;
+            }
+        }
+
+        function updateObstacles() {
+            obstacles = obstacles.filter(obstacle => {
+                obstacle.x -= gameSpeed;
+                return obstacle.x > -obstacleWidth;
+            });
+        }
+
+        function checkCollision() {
+            return obstacles.some(obstacle => {
+                if (obstacle.isTop) {
+                    return player.x < obstacle.x + obstacle.width &&
+                        player.x + player.width > obstacle.x &&
+                        player.y - player.height / 2 < obstacle.height;
+                } else {
+                    return player.x < obstacle.x + obstacle.width &&
+                        player.x + player.width > obstacle.x &&
+                        player.y + player.height / 2 > canvas.height - obstacle.height;
+                }
+            });
+        }
+
+        function updateScore() {
+            score++;
+            scoreElement.textContent = score;
+
+            if (score % 200 === 0) {
+                gameSpeed += 0.3;
+                gravity = baseGravity * (gameSpeed / 2);  // 2 ist die Start-gameSpeed
+            }
+        }
+
+        function gameLoop() {
+            if (!gameActive) return;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            updatePlayer();
+            drawPlayer();
+
+            createObstacle();
+            updateObstacles();
+            drawObstacles();
+
+            if (checkCollision()) {
+                endGame();
+                return;
+            }
+
+            updateScore();
+            animationFrame = requestAnimationFrame(gameLoop);
+        }
+
+        // Verbesserte Touch-Steuerung
+        canvas.addEventListener('touchstart', (e) => {
+            if (!gameActive) {
+                startGame();
+            } else {
+                gravityDirection *= -1;
+                player.velocity = 0;
+            }
+            e.preventDefault();
+        }, { passive: false });
+
+        // Verbesserte PC-Steuerung
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                if (!gameActive) {
+                    startGame();
+                } else {
+                    gravityDirection *= -1;
+                    player.velocity = 0;
+                }
+                e.preventDefault();
+                if (spacepressed !== true) {
+                    document.getElementById("message").innerText = "   "
+                    spacepressed = true
+                }
+            }
+        });
+
+        // Initialisiere die Nachricht basierend auf dem GerÃ¤tetyp
+        document.addEventListener('DOMContentLoaded', function () {
+            message.textContent = isMobileDevice() ? "Tippe auf den Bildschirm zum Starten" : "Drücke Leertaste zum Starten";
+        });
+
+        function startGame() {
+            if (gameActive) return;
+            if (oncestarted) return;
+
+            document.getElementById("statsbar").style.opacity = 1
+            document.getElementById("canvaswrap").style.opacity = 1
+            document.getElementById("message").style.opacity = 1
+
+            oncestarted = true
+            score = 0;
+            scoreElement.textContent = score;
+            gameSpeed = 2;
+            obstacles = [];
+            player.y = canvas.height / 2;
+            player.velocity = 0;
+            gravityDirection = 1;
+            gameActive = true;
+            message.textContent = isMobileDevice() ? "Tippe auf den Bildschirm um die Schwerkraft umzukehren" : "Drücke Leertaste um die Schwerkraft umzukehren";
+            gameLoop();
+        }
+
+        function endGame() {
+            gameActive = false;
+            cancelAnimationFrame(animationFrame);
+            document.getElementById("finalScore").innerText = score
+            document.getElementById("gameOver").style.display = "flex"
+
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('highScore_gravity_flip', highScore);
+                highScoreElement.textContent = highScore;
+            }
+        }
+
+        function isMobileDevice() {
+            return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        }
+
+        // Canvas-Größe anpassen
+        function resizeCanvas() {
+            const wrapper = canvas.parentElement;
+            const windowWidth = window.innerWidth;
+            const windowHeight = window.innerHeight;
+
+            // Nutze 90% der verfügbaren Breite/Höhe
+            const maxWidth = wrapper.clientWidth * 0.95;
+            const maxHeight = windowHeight * 0.9;
+
+            const oldHeight = canvas.height;
+
+            canvas.width = Math.min(maxWidth, 1200);
+            canvas.height = Math.min(maxHeight, 600);
+
+            // Passe Spieler-Position proportional an
+            if (oldHeight > 0) {
+                player.y = (player.y / oldHeight) * canvas.height;
+            } else {
+                player.y = canvas.height / 2;
+            }
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+    </script>
+</body>
+
+</html>
