@@ -18,10 +18,8 @@
         <p class="overlay-label">Heissluftballon</p>
         <h2>BEREIT</h2>
         <div class="overlay-rule"></div>
-        <p id="desktopInstructions" style="display:none;">Steuerung: Pfeiltasten links / rechts<br>Ziel: Zerstöre alle
-            Blöcke!</p>
-        <p id="mobileInstructions" style="display:none;">Steuerung: Berühre und ziehe das Paddle<br>Ziel: Zerstöre alle
-            Blöcke!</p>
+        <p id="desktopInstructions">Steuerung: Benutze die Maus zum Steuern</p>
+        <p id="mobileInstructions">Steuerung: Ziehe den Ballon</p>
         <div class="overlay-scores">
             <div class="ov-score">
                 <div class="ov-label">Highscore</div>
@@ -316,6 +314,10 @@
                 localStorage.setItem('highScore_heissluftballon', highScore);
                 highScoreElement.textContent = highScore;
             }
+
+            document.getElementById("statsbar").style.opacity = 0
+            document.getElementById("canvaswrap").style.opacity = 0
+            document.getElementById("message").style.opacity = 0
         }
 
         // Touch-Steuerung
@@ -377,14 +379,6 @@
         canvas.addEventListener('mouseleave', handleMouseUp);
 
         let jumpedonce = false
-
-        // Tastatur-Steuerung
-        document.addEventListener('keydown', (e) => {
-            if (e.code === 'Space') {
-                e.preventDefault(); // Verhindert das Standardverhalten der Leertaste
-                startGame();
-            }
-        });
 
         // Initialisiere Highscore
         highScoreElement.textContent = highScore;
