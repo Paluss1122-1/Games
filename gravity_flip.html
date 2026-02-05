@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="de">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -40,13 +39,11 @@
     </div>
 
     <div class="overlay" id="startScreen">
-        <p class="overlay-label">Dinosaurier</p>
+        <p class="overlay-label">Gravity Flip</p>
         <h2>BEREIT</h2>
         <div class="overlay-rule"></div>
-        <p id="desktopInstructions" style="display:none;">Steuerung: Pfeiltasten links / rechts<br>Ziel: Zerstöre alle
-            Blöcke!</p>
-        <p id="mobileInstructions" style="display:none;">Steuerung: Berühre und ziehe das Paddle<br>Ziel: Zerstöre alle
-            Blöcke!</p>
+        <p id="desktopInstructions">Steuerung: Drücke Leertaste um die Schwerkraft umzukehren</p>
+        <p id="mobileInstructions">Steuerung: Tippe um die Schwerkraft umzukehren</p>
         <div class="overlay-scores">
             <div class="ov-score">
                 <div class="ov-label">Highscore</div>
@@ -232,9 +229,7 @@
         // Verbesserte PC-Steuerung
         document.addEventListener('keydown', (e) => {
             if (e.code === 'Space') {
-                if (!gameActive) {
-                    startGame();
-                } else {
+                if (gameActive) {
                     gravityDirection *= -1;
                     player.velocity = 0;
                 }
@@ -283,6 +278,10 @@
                 localStorage.setItem('highScore_gravity_flip', highScore);
                 highScoreElement.textContent = highScore;
             }
+
+            document.getElementById("statsbar").style.opacity = 0
+            document.getElementById("canvaswrap").style.opacity = 0
+            document.getElementById("message").style.opacity = 0
         }
 
         function isMobileDevice() {
