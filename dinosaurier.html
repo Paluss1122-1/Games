@@ -45,10 +45,9 @@
         <p class="overlay-label">Dinosaurier</p>
         <h2>BEREIT</h2>
         <div class="overlay-rule"></div>
-        <p id="desktopInstructions" style="display:none;">Steuerung: Pfeiltasten links / rechts<br>Ziel: Zerstöre alle
-            Blöcke!</p>
-        <p id="mobileInstructions" style="display:none;">Steuerung: Berühre und ziehe das Paddle<br>Ziel: Zerstöre alle
-            Blöcke!</p>
+        <p id="desktopInstructions">Steuerung: Drücke Leertaste zum Springen</p>
+        <p id="mobileInstructions">Steuerung: Tippe zum Springen</p>
+        <div class="overlay-rule"></div>
         <div class="overlay-scores">
             <div class="ov-score">
                 <div class="ov-label">Highscore</div>
@@ -278,7 +277,6 @@
             dino.y = groundY;
             dino.jumping = false;
             dino.jumpVelocity = 0;
-            // Setze Jump-Physik zurück
             dino.gravity = dino.baseGravity;
             dino.jumpForce = dino.baseJumpForce;
             gameActive = true;
@@ -297,6 +295,10 @@
                 localStorage.setItem('highScore_dinosaurier', highScore);
                 highScoreElement.textContent = highScore;
             }
+
+            document.getElementById("statsbar").style.opacity = 0
+            document.getElementById("canvaswrap").style.opacity = 0
+            document.getElementById("message").style.opacity = 0
         }
 
         // PrÃ¼fe, ob es sich um ein mobiles GerÃ¤t handelt
@@ -314,9 +316,7 @@
         // Steuerung
         document.addEventListener('keydown', (e) => {
             if (e.code === 'Space') {
-                if (!gameActive) {
-                    startGame();
-                } else if (!dino.jumping) {
+                if (!dino.jumping) {
                     dino.jumping = true;
                     dino.jumpVelocity = dino.jumpForce;
                 }
