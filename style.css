@@ -408,7 +408,6 @@ body::before {
     }
 }
 
-/* ─── RESPONSIVE canvas height ─── */
 .canvas-wrap {
     min-height: 280px;
 }
@@ -492,5 +491,23 @@ body::before {
 @media (max-width: 768px) and (orientation: portrait) {
     .portrait-warning {
         display: flex;
+    }
+}
+
+@media (max-width: 999px) {
+    #desktopInstructions {
+        display: none;
+    }
+    #mobileInstructions {
+        display: block;
+    }
+}
+
+@media (min-width: 1000px) {
+    #desktopInstructions {
+        display: block;
+    }
+    #mobileInstructions {
+        display: none;
     }
 }
